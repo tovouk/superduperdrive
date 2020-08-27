@@ -18,9 +18,9 @@
             <div id="contentDiv" style="clear: right;">
                 <nav style="clear: right;">
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link active" id="nav-files-tab" data-toggle="tab" href="#nav-files" role="tab" aria-controls="nav-files" aria-selected="true">Files</a>
-                        <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</a>
-                        <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="#nav-credentials" role="tab" aria-controls="nav-credentials" aria-selected="false">Credentials</a>
+                        <a class="nav-item nav-link" id="nav-files-tab" data-toggle="tab" href="/nav-files" th:href="@{/nav-files}" role="tab" aria-controls="nav-files" aria-selected="true">Files</a>
+                        <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="/nav-notes" th:href="@{/nav-notes}" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</a>
+                        <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="/nav-credentials" th:href="@{/nav-credentials}" role="tab" aria-controls="nav-credentials" aria-selected="false">Credentials</a>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
@@ -75,13 +75,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    <tr th:each="note : ${notes}">
                                         <td>
                                             <button type="button" class="btn btn-success">Edit</button>
                                             <a class="btn btn-danger">Delete</a>
                                         </td>
-                                        <th scope="row">Example Note Title</th>
-                                        <td>Example Note Description </td>
+                                        <th scope="row" th:text="${note.noteTitle}"></th>
+                                        <td th:text="${note.noteDescription}"></td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(notes)}">
+                                        <td colspan="3">No Notes Found</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -97,7 +100,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="#" method="POST">
+                                        <form action="/nav-notes" th:action="@{/nav-notes}" method="POST">
                                             <input type="hidden" name="noteId" id="note-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Title</label>
@@ -192,6 +195,28 @@
 
         <!--For opening the note modal-->
         <script type="text/javascript">
+            //TODO fix tab url issues
+            $(document).ready(function(){
+                let activeTab = window.location.pathname;
+                if(activeTab == "/"){
+                    $("#nav-files-tab").addClass("active show");
+                    $("#nav-files").addClass("active show");
+                }else{
+                    activeTab = activeTab.replace("/","");
+                    $("#" + activeTab + "-tab").addClass("active show");
+                    $(".tab-pane").removeClass("active show");
+                    $("#" + activeTab).addClass("active show");
+                }
+                $(".nav-item").each(function(i,element){
+                    element.click(function(e){
+                        e.preventDefault();
+                        console.log("clicked");
+                        window.location.href = element.href;
+                    })
+                })
+
+            })
+
             // For opening the note modal
             function showNoteModal(noteId, noteTitle, noteDescription) {
                 $('#note-id').val(noteId ? noteId : '');
