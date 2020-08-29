@@ -18,13 +18,13 @@
             <div id="contentDiv" style="clear: right;">
                 <nav style="clear: right;">
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link" id="nav-files-tab" data-toggle="tab" href="/nav-files" th:href="@{/nav-files}" role="tab" aria-controls="nav-files" aria-selected="true">Files</a>
-                        <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="/nav-notes" th:href="@{/nav-notes}" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</a>
-                        <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="/nav-credentials" th:href="@{/nav-credentials}" role="tab" aria-controls="nav-credentials" aria-selected="false">Credentials</a>
+                        <a class="nav-item nav-link" id="nav-files-tab" data-toggle="tab" href="#nav-files" role="tab" aria-controls="nav-files" aria-selected="true">Files</a>
+                        <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</a>
+                        <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="#nav-credentials" role="tab" aria-controls="nav-credentials" aria-selected="false">Credentials</a>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="nav-files" role="tabpanel" aria-labelledby="nav-files-tab">
+                    <div class="tab-pane fade" id="nav-files" role="tabpanel" aria-labelledby="nav-files-tab">
                         <form action="#" enctype="multipart/form-data" method="POST">
                             <div class="container">
                                 <div class="row" style="margin: 1em;">
@@ -61,6 +61,18 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
+                        <div id="error-msg" class="alert alert-danger alert-dismissible" role="alert" th:if="${errorMessage}" >
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div id="success-msg" class="alert alert-success alert-dismissible" role="alert" th:if="${successMessage}">
+                            <span th:text="${successMessage}"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                         <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showNoteModal()">
                             + Add a New Note
                         </button>
@@ -76,9 +88,11 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="note : ${notes}">
-                                        <td>
-                                            <button type="button" class="btn btn-success">Edit</button>
-                                            <a class="btn btn-danger">Delete</a>
+                                        <td th:id="${'note-' + note.noteId}" th:data-title="${note.noteTitle}" th:data-description="${note.noteDescription}">
+                                            <button type="button" class="btn btn-success" th:onclick="|showNoteModal('PUT','${note.noteId}','${note.userId}')|" >Edit</button>
+                                            <form style="display: inline;" action="#" name="delete" th:action="@{/nav-notes/delete/} + ${note.noteId}" method="POST">
+                                                <input type="submit" class="btn btn-danger" value="Delete">
+                                            </form>
                                         </td>
                                         <th scope="row" th:text="${note.noteTitle}"></th>
                                         <td th:text="${note.noteDescription}"></td>
@@ -100,7 +114,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="/nav-notes" th:action="@{/nav-notes}" method="POST">
+                                        <form id="note-form" action="/nav-notes" th:action="@{/nav-notes}" method="POST">
                                             <input type="hidden" name="noteId" id="note-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Title</label>
@@ -122,6 +136,18 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
+                        <div id="error-credential" class="alert alert-success alert-dismissible" role="alert" th:if="${credentialSuccess}" >
+                            <span th:text="${credentialSuccess}"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div id="success-credential" class="alert alert-danger alert-dismissible" role="alert" th:if="${credentialError}">
+                            <span th:text="${credentialError}"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                         <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showCredentialModal()">
                             + Add a New Credential
                         </button>
@@ -137,14 +163,19 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
+                                <tr th:each="credential : ${credentials}">
                                     <td>
                                         <button type="button" class="btn btn-success">Edit</button>
-                                        <a class="btn btn-danger">Delete</a>
+                                        <form style="display: inline;" action="#" name="deleteCredential" th:action="@{/nav-credentials/delete/} + ${credential.credentialId}" method="POST">
+                                            <input type="submit" class="btn btn-danger" value="Delete">
+                                        </form>
                                     </td>
-                                    <th scope="row">Example Credential URL</th>
-                                    <td>Example Credential Username</td>
-                                    <td>Example Credential Password</td>
+                                    <th scope="row" th:text="${credential.url}"></th>
+                                    <td th:text="${credential.username}"></td>
+                                    <td th:text="${credential.password}"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(credentials)}">
+                                    <td colspan="4">No Notes Found</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -160,7 +191,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="#" method="POST">
+                                        <form action="/nav-credentials" th:action="@{/nav-credentials}" method="POST">
                                             <input type="hidden" name="credentialId" id="credential-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">URL</label>
@@ -194,34 +225,35 @@
         <script th:src="@{/js/bootstrap.min.js}"></script>
 
         <!--For opening the note modal-->
-        <script type="text/javascript">
+        <script type="text/javascript" th:inline="javascript">
             //TODO fix tab url issues
+            //TODO look into tab pages with thymeleaf and spring boot
             $(document).ready(function(){
                 let activeTab = window.location.pathname;
                 if(activeTab == "/"){
-                    $("#nav-files-tab").addClass("active show");
-                    $("#nav-files").addClass("active show");
+                    $("#nav-files-tab").addClass("active");
+                    $("#nav-files").addClass("show active");
                 }else{
                     activeTab = activeTab.replace("/","");
-                    $("#" + activeTab + "-tab").addClass("active show");
+                    console.log(activeTab);
+                    $("#" + activeTab + "-tab").addClass("active");
                     $(".tab-pane").removeClass("active show");
-                    $("#" + activeTab).addClass("active show");
+                    $("#" + activeTab).addClass("show active");
                 }
-                $(".nav-item").each(function(i,element){
-                    element.click(function(e){
-                        e.preventDefault();
-                        console.log("clicked");
-                        window.location.href = element.href;
-                    })
-                })
 
             })
 
             // For opening the note modal
-            function showNoteModal(noteId, noteTitle, noteDescription) {
+            function showNoteModal(method, noteId, userId) {
+                if(method == "PUT"){
+                    $("#note-form").attr("action","/nav-notes/" + noteId);
+                }else{
+                    $("#note-form").attr("action","/nav-notes");
+                }
+
                 $('#note-id').val(noteId ? noteId : '');
-                $('#note-title').val(noteTitle ? noteTitle : '');
-                $('#note-description').val(noteDescription ? noteDescription : '');
+                $('#note-title').val(noteId ? $("#note-" + noteId)[0].dataset.title : '');
+                $('#note-description').val(noteId ? $("#note-" + noteId)[0].dataset.description : '');
                 $('#noteModal').modal('show');
             }
 
