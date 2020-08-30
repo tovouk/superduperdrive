@@ -114,8 +114,8 @@ public class HomeController {
         model.addAttribute("credentials", credentialService.getCredentials(user.getUserId()));
         Map<String, ?> flashAttributeMap = RequestContextUtils.getInputFlashMap(request);
         if(flashAttributeMap != null){
-            model.addAttribute("credentialSuccess",(String) flashAttributeMap.get("successMessage"));
-            model.addAttribute("credentialError",(String) flashAttributeMap.get("errorMessage"));
+            model.addAttribute("credentialSuccess",(String) flashAttributeMap.get("credentialSuccess"));
+            model.addAttribute("credentialError",(String) flashAttributeMap.get("credentialError"));
         }
         return "home";
     }
@@ -143,14 +143,37 @@ public class HomeController {
         return "home";
     }
 
+    @PostMapping("/nav-credentials/{credentialId}")
+    public RedirectView updateCredential(Authentication authentication, @PathVariable("credentialId") Integer credentialId,
+                                         @ModelAttribute Credential credential, RedirectAttributes redirectAttributes,
+                                         HttpServletRequest request){
+        RedirectView view = new RedirectView("/nav-credentials",true);
+        User user = userService.getUser(authentication.getName());
+        credential.setUserId(user.getUserId());
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(),encodedKey);
+        credential.setKey(encodedKey);
+        credential.setPassword(encryptedPassword);
+        if(credentialService.updateCredential(credential) > 0){
+            redirectAttributes.addFlashAttribute("credentialSuccess","Credential Updated Successfully");
+        }else{
+            redirectAttributes.addFlashAttribute("credentialError","Credential was not Updated. Please try again!");
+        }
+
+        return view;
+    }
+
 
     @PostMapping("/nav-credentials/delete/{credentialId}")
     public RedirectView deleteCredential(@PathVariable("credentialId") Integer credentialId, RedirectAttributes redirectAttributes){
         RedirectView view = new RedirectView("/nav-credentials",true);
         if(credentialService.deleteCredential(credentialId) > 0){
-            redirectAttributes.addFlashAttribute("successMessage","Credential Deleted Successfully");
+            redirectAttributes.addFlashAttribute("credentialSuccess","Credential Deleted Successfully");
         }else{
-            redirectAttributes.addFlashAttribute("errorMessage","Credential was not Deleted. Please try again!");
+            redirectAttributes.addFlashAttribute("credentialError","Credential was not Deleted. Please try again!");
         }
         return view;
     }

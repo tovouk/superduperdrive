@@ -89,7 +89,7 @@
                                 <tbody>
                                     <tr th:each="note : ${notes}">
                                         <td th:id="${'note-' + note.noteId}" th:data-title="${note.noteTitle}" th:data-description="${note.noteDescription}">
-                                            <button type="button" class="btn btn-success" th:onclick="|showNoteModal('PUT','${note.noteId}','${note.userId}')|" >Edit</button>
+                                            <button type="button" class="btn btn-success" th:onclick="|showNoteModal('PUT','${note.noteId}')|" >Edit</button>
                                             <form style="display: inline;" action="#" name="delete" th:action="@{/nav-notes/delete/} + ${note.noteId}" method="POST">
                                                 <input type="submit" class="btn btn-danger" value="Delete">
                                             </form>
@@ -164,8 +164,9 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="credential : ${credentials}">
-                                    <td>
-                                        <button type="button" class="btn btn-success">Edit</button>
+                                    <td th:id="${'credential-' + credential.credentialId}" th:data-id="${credential.credentialId}" th:data-username="${credential.username}"
+                                        th:data-url="${credential.url}">
+                                        <button type="button" class="btn btn-success" th:onclick="javascript:showCredentialModal('PUT',[[${credential.credentialId}]],[[${@encryptionService.decryptValue(credential.password,credential.key)}]])">Edit</button>
                                         <form style="display: inline;" action="#" name="deleteCredential" th:action="@{/nav-credentials/delete/} + ${credential.credentialId}" method="POST">
                                             <input type="submit" class="btn btn-danger" value="Delete">
                                         </form>
@@ -191,7 +192,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="/nav-credentials" th:action="@{/nav-credentials}" method="POST">
+                                        <form id="credential-form" action="/nav-credentials" th:action="@{/nav-credentials}" method="POST">
                                             <input type="hidden" name="credentialId" id="credential-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">URL</label>
@@ -226,8 +227,7 @@
 
         <!--For opening the note modal-->
         <script type="text/javascript" th:inline="javascript">
-            //TODO fix tab url issues
-            //TODO look into tab pages with thymeleaf and spring boot
+            /*<![CDATA[*/
             $(document).ready(function(){
                 let activeTab = window.location.pathname;
                 if(activeTab == "/"){
@@ -244,7 +244,7 @@
             })
 
             // For opening the note modal
-            function showNoteModal(method, noteId, userId) {
+            function showNoteModal(method, noteId) {
                 if(method == "PUT"){
                     $("#note-form").attr("action","/nav-notes/" + noteId);
                 }else{
@@ -258,13 +258,20 @@
             }
 
             // For opening the credentials modal
-            function showCredentialModal(credentialId, url, username, password) {
+            function showCredentialModal(method,credentialId,password) {
+                if(method == "PUT"){
+                    $("#credential-form").attr("action","/nav-credentials/" + credentialId);
+                }else{
+                    $("#credential-form").attr("action","/nav-credentials");
+                }
                 $('#credential-id').val(credentialId ? credentialId : '');
-                $('#credential-url').val(url ? url : '');
-                $('#credential-username').val(username ? username : '');
+                $('#credential-url').val(credentialId ? $("#credential-" + credentialId)[0].dataset.url : '');
+                $('#credential-username').val(credentialId ? $("#credential-" + credentialId)[0].dataset.username : '');
                 $('#credential-password').val(password ? password : '');
                 $('#credentialModal').modal('show');
             }
+
+            /*]]>*/
         </script>
     </body>
 </html>
