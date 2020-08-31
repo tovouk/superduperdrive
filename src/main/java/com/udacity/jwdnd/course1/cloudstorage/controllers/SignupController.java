@@ -27,7 +27,7 @@ public class SignupController {
     @PostMapping
     public String signupUser(@ModelAttribute User user, Model model){
         String signupError = null;
-
+        //TODO if user signs up redirect to login page with a success message
         if(!userService.isUsernameAvailable(user.getUsername())){
             signupError = "The username already exists!";
         }

@@ -5,9 +5,7 @@ import com.udacity.jwdnd.course1.cloudstorage.models.File;
 import com.udacity.jwdnd.course1.cloudstorage.models.Note;
 import com.udacity.jwdnd.course1.cloudstorage.models.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -51,6 +49,9 @@ public class HomeController {
         this.credentialService = credentialService;
         this.encryptionService = encryptionService;
     }
+
+    //TODO If a user knows the file, note, or credential ID of another user,
+    // make sure they can’t make a direct request through the browser to view, edit, or delete that file, note, or credential.
 
     @GetMapping("/")
     public String getHomePage(Authentication authentication,Model model){
