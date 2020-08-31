@@ -5,6 +5,7 @@ import com.udacity.jwdnd.course1.cloudstorage.models.File;
 import com.udacity.jwdnd.course1.cloudstorage.models.Note;
 import com.udacity.jwdnd.course1.cloudstorage.models.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -42,7 +43,8 @@ public class HomeController {
     private CredentialService credentialService;
     private EncryptionService encryptionService;
 
-    public HomeController(FileService fileService,NoteService noteService, UserService userService, CredentialService credentialService, EncryptionService encryptionService) {
+    public HomeController(FileService fileService,NoteService noteService, UserService userService,
+                          CredentialService credentialService, EncryptionService encryptionService) {
         this.fileService = fileService;
         this.noteService = noteService;
         this.userService = userService;
@@ -74,17 +76,12 @@ public class HomeController {
     }
 
     @GetMapping("/nav-files/{filename}")
-    public ResponseEntity<ByteArrayResource> getFile(@PathVariable String filename, ServletContext servletContext) throws IOException{
+    public ResponseEntity<Resource> getFile(@PathVariable String filename) throws IOException{
         File file = fileService.getFile(filename);
-        byte[] data = file.getFileData();
-        ByteArrayResource resource = new ByteArrayResource(data);
-        String mineType = servletContext.getMimeType(filename);
-        MediaType mediaType = MediaType.parseMediaType(mineType);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename)
-                .contentType(mediaType) //
-                .contentLength(data.length) //
-                .body(resource);
+                .contentType(MediaType.parseMediaType(file.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; file=\"" + file.getFileName() + "\"")
+                .body(new ByteArrayResource(file.getFileData()));
     }
 
     @PostMapping("/nav-files")
