@@ -9,6 +9,9 @@ public class MyErrorController implements ErrorController {
 
     @GetMapping("/error")
     public String handleError(){
+        //current authentication based errors arise when restarting the application
+        //the User itself doesn't exist but Authentication retains the Name, at the very least
+        //thus the application believes it is authenticated
         return "login";
     }
 
