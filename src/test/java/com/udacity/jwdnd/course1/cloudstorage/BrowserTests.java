@@ -80,13 +80,16 @@ public class BrowserTests {
 
         driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
         homePage.logout();
+        driver.manage().timeouts().implicitlyWait(5,TimeUnit.SECONDS);
 
     }
 
     @Test
     public void verifyHomePageNotAccessibleForUnauthorizedVisitors(){
         driver.get(baseUrl);
-
+        if(driver.getCurrentUrl().equals(baseUrl+"/")){
+            homePage.logout();
+        }
         assertThat(baseUrl).isNotEqualTo(driver.getCurrentUrl());
         assertThat(driver.getCurrentUrl()).isEqualTo(baseUrl + "/login");
     }
@@ -229,8 +232,32 @@ public class BrowserTests {
         assertThat(urlList.get(urlList.size()-1).getText()).isEqualTo(url);
     }
 
-    //TODO Write a Selenium test that logs in an existing user with existing credentials, clicks the edit credential button on an existing credential, changes the credential data, saves the changes, and verifies that the changes appear in the credential list.
+    @Test
+    public void editExistingCredentialAndVerifyChanges(){
+        String username = "burningremedy";
+        String password = "nopassword";
+        driver.get(baseUrl + "/login");
 
+        loginPage = new LoginPage(driver);
+        loginPage.login(username,password);
+
+        HomePage homePage = new HomePage(driver);
+
+        driver.get(baseUrl + "/nav-credentials");
+
+        credentialPage = new CredentialPage(driver);
+
+        List<WebElement> editButtons = credentialPage.getEditButtons();
+
+        credentialPage.clickButton(editButtons.get(0));
+        credentialPage.editCredential("https://home.com","marge","simpson");
+
+        List<WebElement> urlList = credentialPage.getUrls();
+        List<WebElement> usernameList = credentialPage.getUsernames();
+
+        assertThat(urlList.get(0).getText()).isEqualTo("https://home.com");
+        assertThat(usernameList.get(0).getText()).isEqualTo("marge");
+    }
 
     //TODO Write a Selenium test that logs in an existing user with existing credentials, clicks the delete credential button on an existing credential, and verifies that the credential no longer appears in the credential list.
 
