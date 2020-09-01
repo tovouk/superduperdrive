@@ -21,7 +21,7 @@ public class CredentialPage {
     @FindBy(id = "credential-password")
     WebElement inputPassword;
 
-    @FindBy(id = "credentialSubmit")
+    @FindBy(id = "credential-submit")
     WebElement saveCredentialButton;
 
     @FindBy(id = "credential-close")
@@ -37,10 +37,10 @@ public class CredentialPage {
     List<WebElement> credentialUrls;
 
     @FindBy(className = "credentialUsername")
-    List<WebElement> credentialUsername;
+    List<WebElement> credentialUsernames;
 
     @FindBy(className = "credentialPassword")
-    List<WebElement> credentialPassword;
+    List<WebElement> credentialPasswords;
 
     public CredentialPage(WebDriver driver){
         PageFactory.initElements(driver,this);
@@ -82,7 +82,7 @@ public class CredentialPage {
     }
 
     public void createCredential(String url, String username, String password){
-        clickAddButton();
+        addCredentialButton.click();
         setInputUrl(url);
         setUsername(username);
         setPassword(password);
@@ -94,6 +94,22 @@ public class CredentialPage {
         setUsername(username);
         setPassword(password);
         saveCredentialButton.click();
+    }
+
+    public List<WebElement> getEditButtons(){
+        return editButtons;
+    }
+
+    public List<WebElement> getDeleteButtons(){
+        return deleteButtons;
+    }
+
+    public List<WebElement> getUrls(){
+        return credentialUrls;
+    }
+
+    public List<WebElement> getUsernames(){
+        return credentialUsernames;
     }
 
 }

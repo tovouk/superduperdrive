@@ -1,9 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
-import com.udacity.jwdnd.course1.cloudstorage.Pages.HomePage;
-import com.udacity.jwdnd.course1.cloudstorage.Pages.LoginPage;
-import com.udacity.jwdnd.course1.cloudstorage.Pages.NotePage;
-import com.udacity.jwdnd.course1.cloudstorage.Pages.SignupPage;
+import com.udacity.jwdnd.course1.cloudstorage.Pages.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,6 +26,7 @@ public class BrowserTests {
     public SignupPage signupPage;
     public HomePage homePage;
     public NotePage notePage;
+    public CredentialPage credentialPage;
     public String baseUrl;
 
     @LocalServerPort
@@ -74,6 +72,13 @@ public class BrowserTests {
         driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
         notePage.clickAddNote("Old Note", "Old Note Description");
 
+        driver.get(baseUrl + "/nav-credentials");
+
+        credentialPage = new CredentialPage(driver);
+        credentialPage.createCredential("http://home.com","homer","simpson");
+
+
+        driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
         homePage.logout();
 
     }
@@ -133,8 +138,6 @@ public class BrowserTests {
 
         String title = "Note Title";
         String description = "Note Description";
-
-        WebDriverWait wait = new WebDriverWait(driver,5);
 
         driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
 
@@ -200,10 +203,30 @@ public class BrowserTests {
         }
     }
 
-    //TODO Write a Selenium test that logs in an existing user, creates a credential and verifies that the credential details are visible in the credential list.
     @Test
     public void LoginAndCreateCredentialThenVerify(){
+        String username = "burningremedy";
+        String password = "nopassword";
+        driver.get(baseUrl + "/login");
 
+        loginPage = new LoginPage(driver);
+        loginPage.login(username,password);
+
+        HomePage homePage = new HomePage(driver);
+
+        driver.get(baseUrl + "/nav-credentials");
+
+        credentialPage = new CredentialPage(driver);
+
+        String url = "https://somewebsite.com";
+        String username1 = "username";
+        String password1 = "password";
+
+        credentialPage.createCredential(url,username1,password1);
+
+        List<WebElement> urlList = credentialPage.getUrls();
+
+        assertThat(urlList.get(urlList.size()-1).getText()).isEqualTo(url);
     }
 
     //TODO Write a Selenium test that logs in an existing user with existing credentials, clicks the edit credential button on an existing credential, changes the credential data, saves the changes, and verifies that the changes appear in the credential list.
