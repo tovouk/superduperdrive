@@ -50,6 +50,16 @@ public class BrowserTests {
     @BeforeEach
     public void beforeEach() {
         baseUrl = "http://localhost:" + port;
+        String firstname = "Jose";
+        String lastname = "Hinojo";
+        String username = "burningremedy";
+        String password = "nopassword";
+
+        driver.get(baseUrl + "/signup");
+
+        signupPage = new SignupPage(driver);
+        signupPage.signUp(firstname,lastname,username,password);
+        signupPage.backToLogin();
     }
 
     @Test
@@ -64,7 +74,7 @@ public class BrowserTests {
     public void verifyLoggedInHomePageLogoutLoginPage(){
         String firstname = "Jose";
         String lastname = "Hinojo";
-        String username = "burningremedy";
+        String username = "burningremedy1";
         String password = "nopassword";
 
         driver.get(baseUrl + "/signup");
@@ -91,17 +101,9 @@ public class BrowserTests {
 
     @Test
     public void loginAndCreateNoteThenViewIt(){
-        String firstname = "Jose";
-        String lastname = "Hinojo";
+
         String username = "burningremedy";
         String password = "nopassword";
-
-        driver.get(baseUrl + "/signup");
-
-        signupPage = new SignupPage(driver);
-        signupPage.signUp(firstname,lastname,username,password);
-        signupPage.backToLogin();
-
         driver.get(baseUrl + "/login");
 
         loginPage = new LoginPage(driver);

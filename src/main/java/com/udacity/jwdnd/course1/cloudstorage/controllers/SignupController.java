@@ -24,6 +24,7 @@ public class SignupController {
         return "signup";
     }
 
+    //TODO redirect to homepage and show success message on login page
     @PostMapping
     public String signupUser(@ModelAttribute User user, Model model){
         String signupError = null;
