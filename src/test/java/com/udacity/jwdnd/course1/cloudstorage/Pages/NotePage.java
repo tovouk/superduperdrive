@@ -5,22 +5,24 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import java.util.List;
+
 public class NotePage {
 
     @FindBy(id = "add-note")
     WebElement addNoteButton;
 
     @FindBy(className = "edit-note")
-    WebElement editNoteButton;
+    List<WebElement> editNoteButtons;
 
     @FindBy(className = "delete-note")
-    WebElement deleteNoteButton;
+    List<WebElement> deleteNoteButtons;
 
     @FindBy(className = "noteTitle")
-    WebElement noteTitle;
+    List<WebElement> noteTitles;
 
     @FindBy(className = "noteDescription")
-    WebElement noteDescription;
+    List<WebElement> noteDescriptions;
 
     @FindBy(id = "emptyNotes")
     WebElement emptyNotes;
@@ -71,21 +73,38 @@ public class NotePage {
         return inputNoteDescription.getText();
     }
 
-    public String getATitle(){
-        return noteTitle.getText();
+    public void clearNoteDescription(){
+        inputNoteDescription.clear();
     }
 
-    public String getADescription(){
-        return noteTitle.getText();
+    public List<WebElement> getTitles(){
+        return noteTitles;
+    }
+
+    public List<WebElement> getDescriptions(){ return noteDescriptions; }
+
+    public List<WebElement> getEditNoteButtons(){
+        return editNoteButtons;
+    }
+
+    public List<WebElement> getDeleteNoteButtons(){
+        return deleteNoteButtons;
+    }
+
+    public void clickButton(WebElement element){
+        element.click();
     }
 
     public void clickAddNote(String title, String description){
         addNoteButton.click();
-        System.out.println("Clicked note Button");
         setNoteTitle(title);
         setNoteDescription(description);
         saveNoteButton.click();
     }
 
+    public void editOpenNoteDescriptionAndSave(String description){
+        setNoteDescription(description);
+        saveNoteButton.click();
+    }
 
 }

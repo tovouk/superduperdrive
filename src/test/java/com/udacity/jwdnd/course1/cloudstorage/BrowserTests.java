@@ -9,16 +9,14 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.test.context.event.annotation.BeforeTestMethod;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +28,7 @@ public class BrowserTests {
     public LoginPage loginPage;
     public SignupPage signupPage;
     public HomePage homePage;
+    public NotePage notePage;
     public String baseUrl;
 
     @LocalServerPort
@@ -60,6 +59,23 @@ public class BrowserTests {
         signupPage = new SignupPage(driver);
         signupPage.signUp(firstname,lastname,username,password);
         signupPage.backToLogin();
+
+        driver.get(baseUrl + "/login");
+
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login(username,password);
+
+        HomePage homePage = new HomePage(driver);
+        homePage.clickNotesTab();
+
+        driver.get(baseUrl + "/nav-notes");
+
+        NotePage notePage = new NotePage(driver);
+        driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
+        notePage.clickAddNote("Old Note", "Old Note Description");
+
+        homePage.logout();
+
     }
 
     @Test
@@ -113,7 +129,7 @@ public class BrowserTests {
 
         driver.get(baseUrl + "/nav-notes");
 
-        NotePage notePage = new NotePage(driver);
+        notePage = new NotePage(driver);
 
         String title = "Note Title";
         String description = "Note Description";
@@ -124,18 +140,65 @@ public class BrowserTests {
 
         notePage.clickAddNote(title,description);
 
-        WebElement noteDescription = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.className("noteDescription")));
+        List<WebElement> descriptionList = notePage.getDescriptions();
 
-        assertThat(noteDescription.getText()).isEqualTo(description);
+        assertThat(descriptionList.get(descriptionList.size()-1).getText()).isEqualTo(description);
 
     }
 
-    //TODO Write a Selenium test that logs in an existing user with existing notes, clicks the edit note button on an existing note, changes the note data, saves the changes, and verifies that the changes appear in the note list.
+    @Test
+    public void editExistingNote(){
+        String username = "burningremedy";
+        String password = "nopassword";
+        driver.get(baseUrl + "/login");
 
+        loginPage = new LoginPage(driver);
+        loginPage.login(username,password);
 
-    //TODO Write a Selenium test that logs in an existing user with existing notes, clicks the delete note button on an existing note, and verifies that the note no longer appears in the note list.
+        HomePage homePage = new HomePage(driver);
 
+        driver.get(baseUrl + "/nav-notes");
+
+        notePage = new NotePage(driver);
+
+        List<WebElement> editButtons = notePage.getEditNoteButtons();
+
+        notePage.clickButton(editButtons.get(0));
+        notePage.clearNoteDescription();
+        notePage.editOpenNoteDescriptionAndSave("New Description");
+
+        List<WebElement> descriptionList = notePage.getDescriptions();
+
+        assertThat(descriptionList.get(0).getText()).isEqualTo("New Description");
+
+    }
+
+    @Test
+    public void deleteNoteAndConfirmDeletion(){
+        String username = "burningremedy";
+        String password = "nopassword";
+        driver.get(baseUrl + "/login");
+
+        loginPage = new LoginPage(driver);
+        loginPage.login(username,password);
+
+        HomePage homePage = new HomePage(driver);
+
+        driver.get(baseUrl + "/nav-notes");
+
+        notePage = new NotePage(driver);
+        List<WebElement> deleteButtons = notePage.getDeleteNoteButtons();
+
+        notePage.clickButton(deleteButtons.get(0));
+
+        List<WebElement> descriptionList = notePage.getDescriptions();
+
+        if(descriptionList.size() > 0){
+            assertThat(descriptionList.get(0).getText()).isEqualTo("Old Note Description");
+        }else{
+            assertThat(descriptionList).isEmpty();
+        }
+    }
 
     //TODO Write a Selenium test that logs in an existing user, creates a credential and verifies that the credential details are visible in the credential list.
 
