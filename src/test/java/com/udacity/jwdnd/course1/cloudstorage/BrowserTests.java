@@ -80,7 +80,7 @@ public class BrowserTests {
 
         driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
         homePage.logout();
-        driver.manage().timeouts().implicitlyWait(5,TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(2,TimeUnit.SECONDS);
 
     }
 
@@ -88,10 +88,14 @@ public class BrowserTests {
     public void verifyHomePageNotAccessibleForUnauthorizedVisitors(){
         driver.get(baseUrl);
         if(driver.getCurrentUrl().equals(baseUrl+"/")){
+            homePage = new HomePage(driver);
             homePage.logout();
+            assertThat(driver.getCurrentUrl()).isEqualTo(baseUrl + "/login?logout");
+        }else{
+            assertThat(driver.getCurrentUrl()).isEqualTo(baseUrl + "/login");
         }
         assertThat(baseUrl).isNotEqualTo(driver.getCurrentUrl());
-        assertThat(driver.getCurrentUrl()).isEqualTo(baseUrl + "/login");
+
     }
 
     @Test
@@ -146,6 +150,8 @@ public class BrowserTests {
 
         notePage.clickAddNote(title,description);
 
+        driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
+
         List<WebElement> descriptionList = notePage.getDescriptions();
 
         assertThat(descriptionList.get(descriptionList.size()-1).getText()).isEqualTo(description);
@@ -171,6 +177,7 @@ public class BrowserTests {
 
         notePage.clickButton(editButtons.get(0));
         notePage.clearNoteDescription();
+
         notePage.editOpenNoteDescriptionAndSave("New Description");
 
         List<WebElement> descriptionList = notePage.getDescriptions();
@@ -250,6 +257,8 @@ public class BrowserTests {
         List<WebElement> editButtons = credentialPage.getEditButtons();
 
         credentialPage.clickButton(editButtons.get(0));
+
+        driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
         credentialPage.editCredential("https://home.com","marge","simpson");
 
         List<WebElement> urlList = credentialPage.getUrls();
@@ -259,7 +268,29 @@ public class BrowserTests {
         assertThat(usernameList.get(0).getText()).isEqualTo("marge");
     }
 
-    //TODO Write a Selenium test that logs in an existing user with existing credentials, clicks the delete credential button on an existing credential, and verifies that the credential no longer appears in the credential list.
+    @Test
+    public void LoginAndDeleteExistingCredential(){
+        String username = "burningremedy";
+        String password = "nopassword";
+        driver.get(baseUrl + "/login");
 
+        loginPage = new LoginPage(driver);
+        loginPage.login(username,password);
+
+        HomePage homePage = new HomePage(driver);
+
+        driver.get(baseUrl + "/nav-credentials");
+
+        credentialPage = new CredentialPage(driver);
+
+        List<WebElement> deleteButtons = credentialPage.getDeleteButtons();
+        int deleteButtonAmount = deleteButtons.size();
+
+        credentialPage.clickButton(deleteButtons.get(0));
+
+        List<WebElement> urlList = credentialPage.getUrls();
+
+        assertThat(urlList.size()).isNotEqualTo(deleteButtonAmount);
+    }
 
 }
