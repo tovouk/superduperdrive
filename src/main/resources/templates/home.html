@@ -12,7 +12,7 @@
         <div class="container">
             <div id="logoutDiv">
                 <form action="#" name="logoutForm" th:action="@{/logout}" method="post">
-                    <input type="submit" class="btn btn-secondary float-right" value="Logout">
+                    <input id="logout-button" type="submit" class="btn btn-secondary float-right" value="Logout">
                 </form>
             </div>
             <div id="contentDiv" style="clear: right;">
@@ -47,7 +47,7 @@
                                         <input type="file" class="form-control-file" id="fileUpload" name="fileUpload">
                                     </div>
                                     <div class="col-sm-4">
-                                        <button type="submit" class="btn btn-dark">Upload</button>
+                                        <button type="submit" class="btn btn-dark" id="fileButton">Upload</button>
                                     </div>
                                 </div>
                             </div>
@@ -90,7 +90,7 @@
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showNoteModal()">
+                        <button th:id="add-note" style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showNoteModal()">
                             + Add a New Note
                         </button>
 
@@ -106,15 +106,15 @@
                                 <tbody>
                                     <tr th:each="note : ${notes}">
                                         <td th:id="${'note-' + note.noteId}" th:data-title="${note.noteTitle}" th:data-description="${note.noteDescription}">
-                                            <button type="button" class="btn btn-success" th:onclick="|showNoteModal('PUT','${note.noteId}')|" >Edit</button>
+                                            <button type="button" class="btn btn-success edit-note" th:onclick="|showNoteModal('PUT','${note.noteId}')|" >Edit</button>
                                             <form style="display: inline;" action="#" name="delete" th:action="@{/nav-notes/delete/} + ${note.noteId}" method="POST">
-                                                <input type="submit" class="btn btn-danger" value="Delete">
+                                                <input type="submit" class="btn btn-danger delete-note" value="Delete">
                                             </form>
                                         </td>
-                                        <th scope="row" th:text="${note.noteTitle}"></th>
-                                        <td th:text="${note.noteDescription}"></td>
+                                        <th class="noteTitle" scope="row" th:text="${note.noteTitle}"></th>
+                                        <td class="noteDescription" th:text="${note.noteDescription}"></td>
                                     </tr>
-                                    <tr th:if="${#lists.isEmpty(notes)}">
+                                    <tr id="emptyNotes" th:if="${#lists.isEmpty(notes)}">
                                         <td colspan="3">No Notes Found</td>
                                     </tr>
                                 </tbody>
@@ -135,7 +135,7 @@
                                             <input type="hidden" name="noteId" id="note-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Title</label>
-                                                <input type="text" name= "noteTitle" class="form-control" id="note-title" maxlength="20" required>
+                                                <input type="text" name="noteTitle" class="form-control" id="note-title" maxlength="20" required>
                                             </div>
                                             <div class="form-group">
                                                 <label for="note-description" class="col-form-label">Description</label>
@@ -145,8 +145,8 @@
                                         </form>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();">Save changes</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close-notes">Close</button>
+                                        <button type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();" id="save-note">Save changes</button>
                                     </div>
                                 </div>
                             </div>
@@ -212,15 +212,15 @@
                                         <form id="credential-form" action="/nav-credentials" th:action="@{/nav-credentials}" method="POST">
                                             <input type="hidden" name="credentialId" id="credential-id">
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">URL</label>
+                                                <label for="credential-url" class="col-form-label">URL</label>
                                                 <input type="text" name= "url" class="form-control" id="credential-url" maxlength="100" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">Username</label>
+                                                <label for="credential-username" class="col-form-label">Username</label>
                                                 <input type="text" name= "username" class="form-control" id="credential-username" maxlength="30" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">Password</label>
+                                                <label for="credential-password" class="col-form-label">Password</label>
                                                 <input type="text" name= "password" class="form-control" id="credential-password" maxlength="30" required>
                                             </div>
                                             <button id="credentialSubmit" type="submit" class="d-none"></button>
