@@ -16,7 +16,7 @@ public class CredentialService {
 
     public List<Credential> getCredentials(Integer userId){ return credentialMapper.getCredentials(userId);}
 
-    public Credential getCredential(Integer credentialId){ return credentialMapper.getCredential(credentialId); }
+    public Credential getCredential(Integer credentialId, Integer userId){ return credentialMapper.getCredential(credentialId, userId); }
 
     public int createCredential(Credential credential){
         return credentialMapper.insertCredential(new Credential(null,credential.getUrl(),credential.getUsername(),credential.getKey(),credential.getPassword(),credential.getUserId()));

@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.RequestContextUtils;
+import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/signup")
@@ -20,33 +26,39 @@ public class SignupController {
     }
 
     @GetMapping
-    public String getSignupPage(){
+    public String getSignupPage(Model model,HttpServletRequest request){
+        Map<String, ?> flashAttributeMap = RequestContextUtils.getInputFlashMap(request);
+        if(flashAttributeMap != null){
+            model.addAttribute("signupError",(String) flashAttributeMap.get("signupError"));
+        }
         return "signup";
     }
 
-    //TODO redirect to homepage and show success message on login page
     @PostMapping
-    public String signupUser(@ModelAttribute User user, Model model){
+    public RedirectView signupUser(@ModelAttribute User user, RedirectAttributes redirectAttributes){
         String signupError = null;
-        //TODO if user signs up redirect to login page with a success message
+        RedirectView view = new RedirectView("/signup", true);
+
         if(!userService.isUsernameAvailable(user.getUsername())){
             signupError = "The username already exists!";
         }
 
         if(signupError == null){
             int rowsAdded = userService.createUser(user);
-            if(rowsAdded < 0){
+            if(rowsAdded <= 0){
                 signupError = "There was an error signing you up. Please try again!";
             }
         }
 
         if(signupError == null){
-            model.addAttribute("signupSuccess",true);
+            view = new RedirectView("/login", true);
+            redirectAttributes.addFlashAttribute("signupSuccess",true);
+            return view;
         }else{
-            model.addAttribute("signupError",signupError);
+            redirectAttributes.addFlashAttribute("signupError",signupError);
         }
 
-        return  "signup";
+        return view;
     }
 
 }

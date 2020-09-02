@@ -18,7 +18,9 @@ public class FileService {
 
     public List<File> getFiles(Integer userId){return fileMapper.getFiles(userId);}
 
-    public File getFile(String filename){return fileMapper.getFile(filename);}
+    public File getFile(String filename, Integer userId){return fileMapper.getFile(filename,userId);}
+
+    public File getFileById(Integer fileId, Integer userId){return fileMapper.getFileById(fileId,userId);}
 
     public int insertFile(File file){return fileMapper.insertFile(file);}
 
