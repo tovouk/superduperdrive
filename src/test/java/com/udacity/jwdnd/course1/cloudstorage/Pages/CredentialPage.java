@@ -81,6 +81,10 @@ public class CredentialPage {
         element.click();
     }
 
+    public void saveCredential(){
+        saveCredentialButton.click();
+    }
+
     public void createCredential(String url, String username, String password){
         addCredentialButton.click();
         setInputUrl(url);

@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -56,7 +56,6 @@ public class BrowserTests {
 
         signupPage = new SignupPage(driver);
         signupPage.signUp(firstname,lastname,username,password);
-        signupPage.backToLogin();
 
         driver.get(baseUrl + "/login");
 
@@ -109,7 +108,6 @@ public class BrowserTests {
 
         signupPage = new SignupPage(driver);
         signupPage.signUp(firstname,lastname,username,password);
-        signupPage.backToLogin();
 
         driver.get(baseUrl + "/login");
 
@@ -259,12 +257,14 @@ public class BrowserTests {
         credentialPage.clickButton(editButtons.get(0));
 
         driver.manage().timeouts().implicitlyWait(1,TimeUnit.SECONDS);
-        credentialPage.editCredential("https://home.com","marge","simpson");
+        credentialPage.setInputUrl("superdeeduper");
+        credentialPage.setUsername("marge");
+        credentialPage.saveCredential();
 
         List<WebElement> urlList = credentialPage.getUrls();
         List<WebElement> usernameList = credentialPage.getUsernames();
 
-        assertThat(urlList.get(0).getText()).isEqualTo("https://home.com");
+        assertThat(urlList.get(0).getText()).isEqualTo("superdeeduper");
         assertThat(usernameList.get(0).getText()).isEqualTo("marge");
     }
 

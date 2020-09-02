@@ -237,6 +237,8 @@ public class HomeController {
         random.nextBytes(key);
         String encodedKey = Base64.getEncoder().encodeToString(key);
         String encryptedPassword = encryptionService.encryptValue(credential.getPassword(),encodedKey);
+        realCredential.setUrl(credential.getUrl());
+        realCredential.setUsername(credential.getUsername());
         realCredential.setKey(encodedKey);
         realCredential.setPassword(encryptedPassword);
         if(realCredential == null) {
